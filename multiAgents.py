@@ -167,59 +167,49 @@ class MinimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         legalActions = gameState.getLegalActions(0)
         bestAction = None
-        bestEval = -99999
-        #depth = self.depth
-        
-        print("STARTING NEW TEST")
-        print("amount of ghosts in this test", gameState.getNumAgents() - 1)
+        bestEval = -99999        
         
         #for each possible action, calculate the minimax score and choose the best one
         for action in legalActions:
             depth = self.depth
             successor = gameState.generateSuccessor(0, action)
             
-            print("self.depth before first call", self.depth)
+            #call minimax starting with the first ghost (index = 1)   
+            miniMaxScore = self.miniMax(successor, 1, depth - 1) 
             
-            miniMaxScore = self.miniMax(successor, 1, depth - 1) #call minimax starting with the first ghost (index = 1)
-            print("minimax score", miniMaxScore)
-            
+            #take the best action of each possible next action
             if miniMaxScore > bestEval:
                 bestEval = miniMaxScore
                 bestAction = action
                 
         return bestAction          
-        
         util.raiseNotDefined()
     
     #takes the gameState and if the player is a ghost or pacman and returns the minimax score
     def miniMax(self, gameState, index, depth):
+        #if depth has been reached, goal state, lost state or no more possible moves, return the evaluation of the position
         if depth < 0 or len(gameState.getLegalActions(index)) == 0 or gameState.isWin() or gameState.isLose():
-            print("at getScore() and depth is ", depth)
             return self.evaluationFunction(gameState)
         
-        if index == 0: # max agent
-            print("depth inside max agent", depth)
+        # max agent
+        if index == 0:
             bestEval = -99999
+            # recursively call miniMax on all possible next actions
             for action in gameState.getLegalActions(index):
                     successor = gameState.generateSuccessor(index, action)
                     miniMaxScore = self.miniMax(successor, index + 1, depth) 
                     bestEval = max(bestEval, miniMaxScore)
-            
             return bestEval              
         
-        if index != 0: # min agent
-            print("depth inside min agent", depth)
-            print("index inside min agent", index)
-            print("gameState?", gameState)
+        # min agent
+        if index != 0: 
             bestEval = 99999
             for action in gameState.getLegalActions(index):
+                    #recursively call miniMax on all possible next actions
                     successor = gameState.generateSuccessor(index, action)
-                    print("index right before if check", index)
                     if index + 1 == gameState.getNumAgents():
-                        print("taking if statement")
                         miniMaxScore = self.miniMax(successor, 0, depth -1)
-                    else:
-                        print("taking else statement")
+                    else: #if more than one ghost then don't decrement the depth
                         miniMaxScore = self.miniMax(successor, index + 1, depth)
                     bestEval = min(bestEval, miniMaxScore)
             
