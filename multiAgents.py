@@ -226,7 +226,67 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
+        legalActions = gameState.getLegalActions(0)
+        bestAction = None
+        bestEval = -999999   
+        alpha = -999999
+        beta = 999999     
+        
+        #for each possible action, calculate the minimax score and choose the best one
+        for action in legalActions:
+            depth = self.depth
+            successor = gameState.generateSuccessor(0, action)
+            
+            #call miniMaxPrune starting with the first ghost (index = 1)   
+            miniMaxScore = self.miniMaxPrune(successor, 1, depth - 1, alpha, beta) 
+            
+            #take the best action of each possible next action
+            if miniMaxScore > bestEval:
+                bestEval = miniMaxScore
+                bestAction = action
+            
+            #pruning at the top level also
+            alpha = max(alpha, bestEval)
+            if beta <= alpha:
+                break
+                    
+        return bestAction        
         util.raiseNotDefined()
+
+    def miniMaxPrune(self, gameState, index, depth, alpha, beta):
+        #if depth has been reached, goal state, lost state or no more possible moves, return the evaluation of the position
+        if depth < 0 or len(gameState.getLegalActions(index)) == 0 or gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState)
+        
+        # max agent
+        if index == 0:
+            bestEval = -999999
+            # recursively call miniMaxPrune on all possible next actions
+            for action in gameState.getLegalActions(index):
+                    #get the successor and run miniMaxPrune on it
+                    successor = gameState.generateSuccessor(index, action)
+                    miniMaxPruneScore = self.miniMaxPrune(successor, index + 1, depth, alpha, beta)
+                    bestEval = max(bestEval, miniMaxPruneScore)
+                    alpha = max(alpha, bestEval)
+                    if beta < alpha:
+                        break
+            return bestEval          
+        
+        # min agent
+        if index != 0: 
+            bestEval = 999999
+            for action in gameState.getLegalActions(index):
+                    #get the successor and run miniMaxPrune on it
+                    successor = gameState.generateSuccessor(index, action)
+                    if index + 1 == gameState.getNumAgents():
+                        miniMaxPruneScore = self.miniMaxPrune(successor, 0, depth -1, alpha, beta)
+                    else: #if more than one ghost then don't decrement the depth
+                        miniMaxPruneScore = self.miniMaxPrune(successor, index + 1, depth, alpha, beta)
+                    bestEval = min(bestEval, miniMaxPruneScore)
+                    beta = min(beta, bestEval)
+                    if beta < alpha:
+                        break
+            return bestEval
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
