@@ -191,8 +191,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
         
         util.raiseNotDefined()
     
-    #takes the gamestate and if the player is a ghost or pacman and returns the minimax score
-    def miniMax(self, gameState: GameState, index, depth):
+    #takes the gameState and if the player is a ghost or pacman and returns the minimax score
+    def miniMax(self, gameState, index, depth):
         if depth < 0 or len(gameState.getLegalActions(index)) == 0 or gameState.isWin() or gameState.isLose():
             print("at getScore() and depth is ", depth)
             return self.evaluationFunction(gameState)
@@ -200,7 +200,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         if index == 0: # max agent
             print("depth inside max agent", depth)
             bestEval = -99999
-            for action in gameState.getLegalActions(gameState):
+            for action in gameState.getLegalActions(index):
                     successor = gameState.generateSuccessor(index, action)
                     miniMaxScore = self.miniMax(successor, index + 1, depth) 
                     bestEval = max(bestEval, miniMaxScore)
@@ -210,8 +210,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
         if index != 0: # min agent
             print("depth inside min agent", depth)
             print("index inside min agent", index)
+            print("gameState?", gameState)
             bestEval = 99999
-            for action in gameState.getLegalActions(gameState):
+            for action in gameState.getLegalActions(index):
                     successor = gameState.generateSuccessor(index, action)
                     print("index right before if check", index)
                     if index + 1 == gameState.getNumAgents():
