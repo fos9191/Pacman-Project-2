@@ -301,7 +301,55 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
+        legalActions = gameState.getLegalActions(0)
+        bestAction = None
+        bestEval = -99999        
+        
+        #for each possible action, calculate the minimax score and choose the best one
+        for action in legalActions:
+            depth = self.depth
+            successor = gameState.generateSuccessor(0, action)
+            
+            #call minimax starting with the first ghost (index = 1)   
+            expectiMaxScore = self.expectiMax(successor, 1, depth - 1) 
+            
+            if expectiMaxScore > bestEval:
+                bestEval = expectiMaxScore
+                bestAction = action
+        
+        return bestAction
+            
+        
+    def expectiMax(self, gameState, index, depth):
+        #if depth has been reached, goal state, lost state or no more possible moves, return the evaluation of the position
+        if depth < 0 or len(gameState.getLegalActions(index)) == 0 or gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState)
+        
+        # min agent
+        if index != 0: 
+            # to hold expected value of possible child nodes
+            expectedValue = 0
+            for action in gameState.getLegalActions(index):
+                successor = gameState.generateSuccessor(index, action)  
+                if index + 1 == gameState.getNumAgents():
+                    value = self.expectiMax(successor, 0, depth - 1)              
+                else:
+                    value = self.expectiMax(successor, index + 1, depth)
+                # take the average of the children's values
+                expectedValue += ( 1 / len(gameState.getLegalActions(index))) * value
+            return expectedValue
+        
+        #max agent
+        elif index == 0:
+            bestEval = -999999
+            for action in gameState.getLegalActions(index):
+                successor = gameState.generateSuccessor(index, action)
+                expectiMaxScore = self.expectiMax(successor, index + 1, depth)
+                bestEval = max(bestEval, expectiMaxScore) 
+            return bestEval
+    
         util.raiseNotDefined()
+            
 
 def betterEvaluationFunction(currentGameState: GameState):
     """
