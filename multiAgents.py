@@ -359,7 +359,43 @@ def betterEvaluationFunction(currentGameState: GameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    currentPos = currentGameState.getPacmanPosition()
+    
+    #distance to closest food
+    closestFood = (100,100)
+    distanceToCloseFood = 100
+    for food in currentGameState.getFood().asList():
+        if (manhattanDistance(currentPos, food) < manhattanDistance(currentPos, closestFood)):
+            distanceToCloseFood = manhattanDistance(currentPos, food)
+            closestFood = food
+    
+    #score of the game
+    gameScore = currentGameState.getScore()    
+    
+    #distance to closest ghost
+    closestGhost = (100,100)
+    distanceToCloseGhost = 100
+    for ghost in currentGameState.getGhostPositions():
+        if (manhattanDistance(currentPos, ghost)) < manhattanDistance(currentPos, closestGhost):
+            closestGhost = ghost
+            distanceToCloseGhost = manhattanDistance(currentPos, ghost)
+    
+    #locations of capsules
+    capsules = len(currentGameState.getCapsules())
+    
+    # amount of food list
+    amountOfFoodLeft = len(currentGameState.getFood().asList())
+    
+    #return a weighted score based on all the above factors and the state of the game
+    if distanceToCloseGhost > 12:
+        return (gameScore * 2) + (distanceToCloseFood * -3/2) - amountOfFoodLeft
+    if distanceToCloseGhost > 8:
+        return (gameScore * 2) + (distanceToCloseFood * (-1.5)) - amountOfFoodLeft
+    elif  distanceToCloseFood == 1 and distanceToCloseGhost > 3:
+        return (gameScore * 1.5) 
+    else:
+        return (distanceToCloseFood * (-1)) + (distanceToCloseGhost * 1) + (gameScore * 0.1) - (capsules*4) - (amountOfFoodLeft * 0.5)
+     
 
 # Abbreviation
 better = betterEvaluationFunction
